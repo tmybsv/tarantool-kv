@@ -56,6 +56,7 @@ func (h *KV) Set(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.storage.Set(req.Key, req.Value); err != nil {
+		h.log.Error("failed to set key", slog.String("error", err.Error()))
 		h.handleStorageError(w, err)
 		return
 	}
@@ -69,6 +70,7 @@ func (h *KV) Get(w http.ResponseWriter, r *http.Request) {
 
 	value, err := h.storage.Get(key)
 	if err != nil {
+		h.log.Error("failed to get key", slog.String("error", err.Error()))
 		h.handleStorageError(w, err)
 		return
 	}
@@ -90,6 +92,7 @@ func (h *KV) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.storage.Update(key, req.Value); err != nil {
+		h.log.Error("failed to update key", slog.String("error", err.Error()))
 		h.handleStorageError(w, err)
 		return
 	}
@@ -102,6 +105,7 @@ func (h *KV) Delete(w http.ResponseWriter, r *http.Request) {
 	key := r.PathValue("key")
 
 	if err := h.storage.Delete(key); err != nil {
+		h.log.Error("failed to delete key", slog.String("error", err.Error()))
 		h.handleStorageError(w, err)
 		return
 	}
