@@ -1,0 +1,13 @@
+env: local
+tarantool:
+  host: "127.0.0.1"
+  port: 3301
+  user: "probeuser"
+  password: "1234qwerASDF"
+  timeout: 5s
+  kv_space: "kv"
+  kv_index: "primary"
+http:
+  port: 8008
+  kv_base_path: "/api/v1/kv"
+  timeout: 5s
