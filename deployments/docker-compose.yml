@@ -35,9 +35,9 @@ services:
     ports:
       - "8008:8008"
     environment:
-      - KV_CONFIG_PATH=/configs/docker.yml
+      - KV_CONFIG_PATH=../configs/docker.yml
     volumes:
-      - ./configs/docker.yml:/configs/docker.yml:ro
+      - ../configs/docker.yml:/configs/docker.yml:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "/bin/server", "--health-check"]
