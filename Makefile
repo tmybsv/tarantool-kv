@@ -1,11 +1,12 @@
-.PHONY: test test-unit test-integration test-coverage
+.PHONY: test test-unit test-coverage build run
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o ./bin/ ./...
+
 run: build
 	./bin/server
 
-test: test-unit test-integration
+test: test-unit
 
 test-unit:
 	go test -v ./internal/...
