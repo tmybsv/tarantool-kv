@@ -49,7 +49,7 @@ func main() {
 		if err := app.HTTPServer.ListenAndServe(); err != nil {
 			if !errors.Is(err, http.ErrServerClosed) {
 				log.Error("failed to start HTTP server", slog.String("error", err.Error()))
-				return
+				os.Exit(1)
 			}
 			log.Info("HTTP server stopped")
 		}
