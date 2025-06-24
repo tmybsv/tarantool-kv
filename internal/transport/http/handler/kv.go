@@ -119,6 +119,8 @@ func (h *KV) handleStorageError(w http.ResponseWriter, err error) {
 		writeJSONErr(h.log, w, http.StatusNotFound, "key not found")
 	case errors.Is(err, storage.ErrInvalidDataFormat):
 		writeJSONErr(h.log, w, http.StatusBadGateway, "storage error")
+	case errors.Is(err, storage.ErrKeyAlreadyExists):
+		writeJSONErr(h.log, w, http.StatusConflict, "key already exists")
 	default:
 		writeJSONErr(h.log, w, http.StatusInternalServerError, "internal error")
 	}

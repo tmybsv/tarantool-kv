@@ -3,6 +3,7 @@ package storage
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 
 	"github.com/tarantool/go-tarantool/v2"
 )
@@ -12,6 +13,8 @@ var (
 	ErrInvalidDataFormat = errors.New("invalid data format")
 	// ErrKeyNotFound is returned when the key is not found.
 	ErrKeyNotFound = errors.New("key not found")
+	// ErrKeyNotFound is returned when the key is already exists.
+	ErrKeyAlreadyExists = errors.New("key already exists")
 )
 
 // Tarantool is a storage implementation that uses Tarantool as a backend.
@@ -39,6 +42,9 @@ func (s *Tarantool) Set(key string, value any) error {
 
 	req := tarantool.NewInsertRequest(s.space).Tuple([]any{key, string(jsonValue)})
 	if _, err := s.conn.Do(req).Get(); err != nil {
+		if checkDuplicateKeyError(err) {
+			return ErrKeyAlreadyExists
+		}
 		return err
 	}
 
@@ -101,4 +107,8 @@ func (s *Tarantool) Delete(key string) error {
 		return err
 	}
 	return nil
+}
+
+func checkDuplicateKeyError(err error) bool {
+	return strings.Contains(err.Error(), "Duplicate key exists")
 }
