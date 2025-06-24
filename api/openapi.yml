@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  title: Tarantool KV Storage API
+  description: HTTP API to work with key-value storage that based on Tarantool
+  version: 1.0.0
+servers:
+  - url: http://127.0.0.1:8008/api/v1
+    description: production server
+
+paths:
+  /kv:
+    post:
+      summary: Create new key-value pair
+      description: Sets key's value. If key already exists, returning error.
+      operationId: setKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - key
+                - value
+              properties:
+                key:
+                  type: string
+                  description: Key to store a value
+                  example: "user:123"
+                value:
+                  description: Value to store (can be any type)
+                  example: { "name": "John", "age": 20 }
+      responses:
+        "201":
+          description: Key successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+              example:
+                key: "user:123"
+        "400":
+          description: Wrong request (empty key)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "key cannot be empty"
+        "422":
+          description: Invalid JSON in request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Key already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "key already exists"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Storage error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /kv/{key}:
+    get:
+      summary: Retrieve value by key
+      description: Returning value by provided key
+      operationId: getKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Key for value retrieving
+          schema:
+            type: string
+          example: "user:123"
+      responses:
+        "200":
+          description: Value successfully received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                    description: Key
+                  value:
+                    description: Value (can be any type)
+              example:
+                key: "user:123"
+                value: { "name": "John", "age": 20 }
+        "404":
+          description: Key not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "key not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Storage error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      summary: Update key's value
+      description: Updates value for existing key. If key not found, returning error.
+      operationId: updateKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Key to update value
+          schema:
+            type: string
+          example: "user:123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - value
+              properties:
+                value:
+                  description: New value (can be any type)
+                  example: { "name": "John Updated", "age": 31 }
+      responses:
+        "200":
+          description: Value successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+              example:
+                key: "user:123"
+        "404":
+          description: Key not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "key not found"
+        "422":
+          description: Invalid JSON in request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Storage error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      summary: Delete key
+      description: Deletes key from storage. If key not found, returning error.
+      operationId: deleteKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          description: Key to delete
+          schema:
+            type: string
+          example: "user:123"
+      responses:
+        "200":
+          description: Key successfully deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+              example:
+                key: "user:123"
+        "404":
+          description: Key not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "key not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Storage error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Key with which operation was performed
+      required:
+        - key
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error description
+      required:
+        - error
