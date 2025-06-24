@@ -48,6 +48,15 @@ services:
     networks:
       - kv-network
 
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.25.2
+    ports:
+      - "8016:8080"
+    environment:
+      SWAGGER_JSON: /oas/openapi.yml
+    volumes:
+      - ../api:/oas
+
 volumes:
   tarantool_data:
     driver: local
